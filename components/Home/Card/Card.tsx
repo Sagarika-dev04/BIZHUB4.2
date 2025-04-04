@@ -14,34 +14,37 @@ interface CardProps {
 
 const Card: React.FC<CardProps> = ({ business }) => {
   return (
-    <div className="bg-white rounded-1xl shadow-lg overflow-hidden transition-transform transform hover:scale-102 hover:shadow-xl duration-300 max-w-sm">
-      {/* Business Image */}
+    <div className="bg-slate-50  rounded-md shadow border border-cyan-100 overflow-hidden w-full max-w-xl h-48 flex gap-y-2.5 hover:scale-[1.01] hover:shadow-lg transition-all duration-300">
+    {/* Business Image */}
+    <div className="w-48 h-full flex-shrink-0">
       <img
         src={business.image || "/images/default-business.jpg"}
         alt={business.name}
-        className="w-full h-48 object-cover"
+        className="w-full h-full object-cover"
       />
-
-      {/* Business Info */}
-      <div className="p-5">
-        <h2 className="text-2xl font-semibold text-blue-950 mb-2">
-          {business.name}
-        </h2>
-        <p className="text-gray-600 text-sm mb-3">{business.category}</p>
-        <p className="text-gray-700 text-sm line-clamp-2">{business.description}</p>
-
+    </div>
+  
+    {/* Business Info */}
+    <div className="flex flex-col justify-between p-4 flex-1 h-full overflow-hidden">
+      <div>
+        <h2 className=" text-lg font-bold tracking-tight text-blue-950 truncate">{business.name}</h2>
+        <p className="text-sm text-gray-500 mb-1 truncate">{business.category}</p>
+        <p className="text-sm text-gray-600 line-clamp-2">{business.description}</p>
+  
         {/* Location */}
-        <div className="flex items-center text-gray-500 text-sm mt-3">
-          <span className="material-icons text-lg mr-1">location_on</span>
+        <div className="flex items-center text-gray-400 text-xs mt-2 truncate">
+          <span className="material-icons text-sm mr-1"></span>
           {business.location}
         </div>
-
-        {/* Button */}
-        <button className="mt-4 w-full bg-cyan-500 text-white py-2 rounded-lg font-medium hover:bg-cyan-600 transition duration-200 cursor-pointer">
-          View Details
-        </button>
       </div>
+  
+      {/* Button */}
+      <button className="mt-3 bg-blue-950 text-white px-2 py-1 text-sm rounded-md hover:text-gray-300 hover:cursor-pointer transition w-fit">
+        View Details
+      </button>
     </div>
+  </div>
+  
   );
 };
 

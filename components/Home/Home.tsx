@@ -2,7 +2,7 @@ import React from "react";
 import Nav from "./Navbar/Nav";
 import Hero from "./Hero/Hero";
 import Card from "./Card/Card";
-
+import Footer from "./Footer/Footer"
 interface Business {
   name: string;
   category: string;
@@ -17,21 +17,44 @@ const businessData: Business[] = [
     category: "IT & Software",
     description: "A leading software company specializing in AI and cloud computing.",
     location: "New York, USA",
-    image: "/images/business1.jpg",
+    image: "/images/business1.jfif",
   },
   {
     name: "Fresh Organics",
     category: "Food & Beverage",
     description: "Providing farm-fresh organic produce to your doorstep.",
     location: "San Francisco, USA",
-    image: "/images/business2.jpg",
+    image: "/images/business2.jfif",
   },
   {
     name: "Creative Studios",
     category: "Marketing & Design",
     description: "Helping brands with digital marketing, branding, and design solutions.",
     location: "Los Angeles, USA",
-    image: "/images/business3.jpg",
+    image: "/images/business3.png",
+  },
+  {
+    name: "Creative Studios",
+    category: "Marketing & Design",
+    description: "Helping brands with digital marketing, branding, and design solutions.",
+    location: "Los Angeles, USA",
+    image: "/images/business3.png",
+  },
+  {
+    name: "Tech Innovators",
+    category: "IT & Software",
+    description: "A leading software company specializing in AI and cloud computing.",
+    location: "New York, USA",
+    image: "/images/business1.jfif",
+  },
+
+  
+    {
+    name: "Fresh Organics",
+    category: "Food & Beverage",
+    description: "Providing farm-fresh organic produce to your doorstep.",
+    location: "San Francisco, USA",
+    image: "/images/business2.jfif",
   },
 ];
 
@@ -47,12 +70,14 @@ const Home: React.FC = () => {
           Explore Businesses
         </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 place-items-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12 place-items-center">
           {businessData.map((business, index) => (
             <Card key={index} business={business} />
           ))}
         </div>
       </section>
+
+      <Footer/>
     </div>
   );
 };
