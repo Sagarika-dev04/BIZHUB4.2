@@ -19,7 +19,7 @@ const Login: React.FC = () => {
         <form onSubmit={handleLogin} className="space-y-5">
           {/* Email Field */}
           <div className="relative">
-            <FiMail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500" />
+            {FiMail ({className:"absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500"}) }
             <input
               type="email"
               placeholder="Enter your email"
@@ -32,7 +32,7 @@ const Login: React.FC = () => {
 
           {/* Password Field */}
           <div className="relative">
-            <FiLock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500" />
+            {FiLock ({className:"absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500"}) }
             <input
               type="password"
               placeholder="Enter your password"

@@ -24,7 +24,7 @@ const Signup: React.FC = () => {
           <div className="space-y-2">
             <label className="text-gray-700 font-medium text-sm">Full Name</label>
             <div className="relative">
-              <FiUser className="absolute left-3 top-3.5 text-gray-500 text-lg" />
+              {FiUser ({className:"absolute left-3 top-3.5 text-gray-500 text-lg"})}
               <input
                 type="text"
                 name="name"
@@ -40,7 +40,7 @@ const Signup: React.FC = () => {
           <div className="space-y-2">
             <label className="text-gray-700 font-medium text-sm">Email Address</label>
             <div className="relative">
-              <FiMail className="absolute left-3 top-3.5 text-gray-500 text-lg" />
+              {FiMail ({className:"absolute left-3 top-3.5 text-gray-500 text-lg"})}
               <input
                 type="email"
                 name="email"
@@ -56,7 +56,7 @@ const Signup: React.FC = () => {
           <div className="space-y-2">
             <label className="text-gray-700 font-medium text-sm">Password</label>
             <div className="relative">
-              <FiLock className="absolute left-3 top-3.5 text-gray-500 text-lg" />
+              {FiLock ({className:"absolute left-3 top-3.5 text-gray-500 text-lg"})}
               <input
                 type="password"
                 name="password"
@@ -72,7 +72,7 @@ const Signup: React.FC = () => {
           <div className="space-y-2">
             <label className="text-gray-700 font-medium text-sm">User Type</label>
             <div className="relative">
-              <FiChevronDown className="absolute right-3 top-3.5 text-gray-500 text-lg" />
+              {FiChevronDown ({className:"absolute right-3 top-3.5 text-gray-500 text-lg"})}
               <select
                 name="userType"
                 className="w-full h-12 pl-3 pr-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all appearance-none"
