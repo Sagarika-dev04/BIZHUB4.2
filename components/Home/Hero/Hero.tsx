@@ -2,9 +2,11 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { FiSearch } from "react-icons/fi";
+import { useSession } from "next-auth/react";
 
 const Hero = () => {
   const router = useRouter();
+  const { data: session } = useSession(); // Get session data
   const [searchQuery, setSearchQuery] = React.useState("");
 
   const images = [
@@ -26,7 +28,7 @@ const Hero = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Search for:", searchQuery);
-    // router.push(`/search?query=${searchQuery}`);
+    router.push(`/search?query=${encodeURIComponent(searchQuery)}`);
   };
 
   return (
@@ -46,7 +48,7 @@ const Hero = () => {
           <li>✔ Easy-to-use interface for search and discovery</li>
         </ul>
 
-        {/* 🌟 Stylish Centered Search Bar */}
+        {/*Stylish Centered Search Bar */}
         <div className="flex justify-center md:justify-start mt-8">
           <form
             onSubmit={handleSearch}
@@ -56,7 +58,7 @@ const Hero = () => {
               type="submit"
               className="text-cyan-600 hover:text-cyan-700 cursor-pointer"
             >
-            {FiSearch ({className:"w-5 h-5" })}
+              {FiSearch({ className: "w-5 h-5" })}
             </button>
             <input
               type="text"
@@ -68,15 +70,17 @@ const Hero = () => {
           </form>
         </div>
 
-        {/* CTA Button below Search */}
-        <div>
-          <button
-            onClick={() => router.push("/signup")}
-            className="mt-6 bg-blue-950 text-white px-6 py-3 rounded-lg text-lg font-semibold hover:text-gray-200 cursor-pointer"
-          >
-            Get Started
-          </button>
-        </div>
+        {/* CTA Button below Search - Only show if not logged in */}
+        {!session && (
+          <div>
+            <button
+              onClick={() => router.push("/signup")}
+              className="mt-6 bg-blue-950 text-white px-6 py-3 rounded-lg text-lg font-semibold hover:text-gray-200 cursor-pointer"
+            >
+              Get Started
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Right Side: Image Slider */}

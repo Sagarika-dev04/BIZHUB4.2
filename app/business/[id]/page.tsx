@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import {
   FiMapPin,
   FiMail,
@@ -11,62 +13,113 @@ import {
 } from "react-icons/fi";
 import Nav from "@/components/Home/Navbar/Nav";
 import Footer from "@/components/Home/Footer/Footer";
-import { Business } from "@/app/page";
 import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
-// Business data
-const businessData: Business[] = [
-  {
-    id: 1,
-    name: "Tech Innovators",
-    category: "IT & Software",
-    description:
-      "Tech Innovators is a trailblazing software firm that harnesses the power of artificial intelligence and cloud computing to deliver groundbreaking digital solutions. With a strong commitment to innovation, they help businesses scale efficiently, optimize operations, and stay ahead in today’s fast-paced tech landscape.",
-    location: "New York, USA",
-    image: "/images/business1.jfif",
-    email: "contact@techinnovators.com",
-    website: "https://techinnovators.com",
-    phone: "+1 234 567 8901",
-    openingHours: "Mon-Fri 9am - 6pm",
-  },
-  {
-    id: 2,
-    name: "Fresh Organics",
-    category: "Food & Beverage",
-    description:
-      "Fresh Organics is dedicated to delivering high-quality, organic produce directly from local farms to your doorstep. With a focus on sustainability and freshness, they offer a wide selection of fruits, vegetables, and health foods, ensuring your family eats healthier while supporting eco-friendly agricultural practices.",
-    location: "San Francisco, USA",
-    image: "/images/business2.jfif",
-    email: "hello@freshorganics.com",
-    website: "https://freshorganics.com",
-    phone: "+1 987 654 3210",
-    openingHours: "Daily 7am - 9pm",
-  },
-  {
-    id: 3,
-    name: "Creative Studios",
-    category: "Marketing & Design",
-    description:
-      "Creative Studios crafts compelling brand stories through innovative marketing strategies and visually captivating designs. From startups to enterprises, they offer tailored digital campaigns, branding, and UX/UI design services that leave a lasting impression and elevate brands in competitive markets.",
-    location: "Los Angeles, USA",
-    image: "/images/business3.png",
-    email: "info@creativestudios.com",
-    website: "https://creativestudios.com",
-    phone: "+1 555 666 7777",
-    openingHours: "Mon-Sat 10am - 7pm",
-  },
-];
-
-
-interface Props {
-  params: { id: string };
+interface Business {
+  _id: string;
+  name: string;
+  category: string;
+  description: string;
+  address: string;
+  image?: string;
+  email?: string;
+  website?: string;
+  phone?: string;
+  openingHours?: string;
+  createdBy?: string | { _id: string };
 }
 
-const BusinessDetailsPage = ({ params }: Props) => {
-  const business = businessData.find((b) => b.id === Number(params.id));
+const BusinessDetailsPage = () => {
+  const { data: session } = useSession(); //session from NextAuth 
+  const { id } = useParams();
+  const router = useRouter();
+  const [business, setBusiness] = useState<Business | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  if (!business)
-    return <div className="text-center text-red-500 py-20">Business Not Found</div>;
+  useEffect(() => {
+    const fetchBusiness = async () => {
+      if (!id) return;
+  
+      try {
+        const res = await fetch(`/api/businessGET/${id}`);
+        const data = await res.json();
+        setBusiness(data);
+  
+        if (session?.user?.id) {
+          const favRes = await fetch(`/api/favoriteCheck/${id}`);
+          const favData = await favRes.json();
+          setIsFavorite(favData?.isFavorite || false);
+        }
+      } catch (err) {
+        console.error("Failed to fetch business or favorite:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchBusiness();
+  }, [id, session]);
+  
+
+
+  //Handler function to handle the deletion of a Business card
+  const handleDelete = async () => {
+    if (!id) return;
+
+    const confirmDelete = confirm("Are you sure you want to delete this business?");
+    if (!confirmDelete) return;
+
+    try {
+      const res = await fetch(`/api/cardEditDel/${id}`, {
+        method: "DELETE",
+      });
+
+      const result = await res.json();
+      if (res.ok) {
+        alert("Business deleted successfully!");
+        window.location.href = "/";
+      } else {
+        alert(result.error || "Delete failed.");
+      }
+    } catch (err) {
+      console.error("Delete Error:", err);
+      alert("Something went wrong during delete.");
+    }
+  };
+
+
+  //handler to handle favorite
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  const handleAddToFavorites = async () => {
+    if (!id) return;
+
+    try {
+      const res = await fetch(`/api/favorite/${id}`, {
+        method: "POST",
+      });
+
+      const result = await res.json();
+      if (res.ok) {
+        setIsFavorite(true);
+      } else {
+        alert(result.error || "Failed to add to favorites.");
+      }
+    } catch (err) {
+      console.error("Favorite Error:", err);
+      alert("Something went wrong while adding to favorites.");
+    }
+  };
+
+
+
+  if (loading) return <div className="text-center py-20">Loading...</div>;
+  if (!business) return <div className="text-center text-red-500 py-20">Business Not Found</div>;
+
+  const userRole = session?.user?.userType;
 
   return (
     <div className="overflow-hidden">
@@ -76,12 +129,11 @@ const BusinessDetailsPage = ({ params }: Props) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
           <div className="flex justify-center">
             <img
-              src={business.image}
+              src={business.image || "/images/default-business.jpg"}
               alt="Business Image"
               className="rounded-2xl w-full h-full object-contain shadow-sm"
             />
           </div>
-
 
           <div className="space-y-4">
             <h1 className="text-4xl font-bold text-gray-900">{business.name}</h1>
@@ -89,11 +141,11 @@ const BusinessDetailsPage = ({ params }: Props) => {
 
             <div className="flex items-center text-gray-500 gap-2">
               {FiMapPin({ className: "w-5 h-5 text-gray-500" })}
-              <span>{business.location}</span>
+              <span>{business.address || "Location not provided"}</span>
             </div>
 
             <p className="text-slate-700 text-base leading-relaxed">
-              {business.description}
+              {business.description || "No description available"}
             </p>
 
             <div className="space-y-2 text-sm text-slate-600">
@@ -127,39 +179,54 @@ const BusinessDetailsPage = ({ params }: Props) => {
               )}
             </div>
 
-            {/* Action Buttons */}
+            {/* Conditional Buttons */}
             <div className="flex flex-wrap gap-4 mt-8">
-              {/* Edit Button */}
-              <button className="flex items-center gap-2 px-5 py-2 text-sm font-medium bg-cyan-500 text-white hover:bg-cyan-600 hover:cursor-pointer transition duration-200 rounded-md shadow-sm">
-                {FiEdit({ className: "w-4 h-4" })}
-                Edit
-              </button>
+              {userRole === "Business Owner" &&
+                ((typeof business.createdBy === "string"
+                  ? business.createdBy === session?.user?.id
+                  : business.createdBy?._id === session?.user?.id)) && (
+                  <button
+                    onClick={() => router.push(`/businessEdit/${business._id}`)}
+                    className="flex items-center gap-2 px-5 py-2 text-sm font-medium bg-cyan-500 text-white hover:cursor-pointer hover:bg-cyan-600 transition rounded-md shadow-sm"
+                  >
+                    {FiEdit({ className: "w-4 h-4" })} Edit
+                  </button>
+                )}
 
-              {/* Delete Button */}
-              <button className="flex items-center gap-2 px-5 py-2 text-sm font-medium bg-red-600 text-white hover:bg-red-700 hover:cursor-pointer transition duration-200 rounded-md shadow-sm">
-                {FiTrash2({ className: "w-4 h-4" })}
-                Delete
-              </button>
+              {userRole === "Admin" && (
+                <button
+                  onClick={handleDelete}
+                  className="flex items-center gap-2 px-5 py-2 text-sm font-medium bg-red-600 text-white hover:cursor-pointer hover:bg-red-700 transition rounded-md shadow-sm"
+                >
+                  {FiTrash2({ className: "w-4 h-4" })} Delete
+                </button>
+              )}
 
-              {/* Favourite Button */}
-              <button className="flex items-center gap-2 px-5 py-2 text-sm font-medium bg-gray-800 text-white hover:bg-gray-900 hover:cursor-pointer transition duration-200 rounded-md shadow-sm">
-                {FiHeart({ className: "w-4 h-4" })}
-                Favourite
-              </button>
+              {userRole === "General User" && (
+                <button
+                  onClick={handleAddToFavorites}
+                  className="p-2 rounded-full hover:cursor-pointer bg-gray-100 hover:bg-gray-100 transition"
+                  title="Add to favorites"
+                >
+                  {isFavorite ? (
+                    <FiHeart className="w-5 h-5 text-red-500 fill-red-500" />
+                  ) : (
+                    <FiHeart className="w-5 h-5 text-gray-500" />
+                  )}
+                </button>
+              )}
+
             </div>
-
           </div>
         </div>
       </div>
 
       <div className="text-center mt-10">
-        <Link
-          href="/"
-          className="text-cyan-600 hover:underline text-sm inline-flex items-center gap-1"
-        >
+        <Link href="/" className="text-cyan-600 hover:underline text-sm inline-flex items-center gap-1">
           ← Back to Home
         </Link>
       </div>
+
       <Footer />
     </div>
   );

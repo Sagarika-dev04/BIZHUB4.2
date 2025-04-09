@@ -1,15 +1,17 @@
-import React from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 import Nav from "@/components/Home/Navbar/Nav";
 import Hero from "@/components/Home/Hero/Hero";
 import Card from "@/components/Home/Card/Card";
 import Footer from "@/components/Home/Footer/Footer";
+import { useSession } from "next-auth/react";
 
 export interface Business {
-  id: number;
+  _id: string;
   name: string;
   category: string;
   description: string;
-  location: string;
+  address: string;
   image?: string;
   email?: string;
   website?: string;
@@ -17,46 +19,43 @@ export interface Business {
   openingHours?: string;
 }
 
-const businessData: Business[] = [
-  {
-    id: 1,
-    name: "Tech Innovators",
-    category: "IT & Software",
-    description: "A leading software company specializing in AI and cloud computing.",
-    location: "New York, USA",
-    image: "/images/business1.jfif",
-    email: "contact@techinnovators.com",
-    website: "https://techinnovators.com",
-    phone: "+1 234 567 8901",
-    openingHours: "Mon-Fri 9am - 6pm"
-  },
-  {
-    id: 2,
-    name: "Fresh Organics",
-    category: "Food & Beverage",
-    description: "Providing farm-fresh organic produce to your doorstep.",
-    location: "San Francisco, USA",
-    image: "/images/business2.jfif",
-    email: "hello@freshorganics.com",
-    website: "https://freshorganics.com",
-    phone: "+1 987 654 3210",
-    openingHours: "Daily 7am - 9pm"
-  },
-  {
-    id: 3,
-    name: "Creative Studios",
-    category: "Marketing & Design",
-    description: "Helping brands with digital marketing, branding, and design solutions.",
-    location: "Los Angeles, USA",
-    image: "/images/business3.png",
-    email: "info@creativestudios.com",
-    website: "https://creativestudios.com",
-    phone: "+1 555 666 7777",
-    openingHours: "Mon-Sat 10am - 7pm"
-  }
-];
-
 const Home: React.FC = () => {
+  const [businesses, setBusinesses] = useState<Business[]>([]);
+  const [favorites, setFavorites] = useState<Business[]>([]);
+  const { data: session } = useSession();
+
+  // Fetch all businesses
+  useEffect(() => {
+    const fetchBusinesses = async () => {
+      try {
+        const res = await fetch("/api/businessAll");
+        const data = await res.json();
+        setBusinesses(data);
+      } catch (err) {
+        console.error("Failed to fetch businesses:", err);
+      }
+    };
+
+    fetchBusinesses();
+  }, []);
+
+  // Fetch user favorites if logged in and is General User
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      if (!session?.user || session.user.userType !== "General User") return;
+
+      try {
+        const res = await fetch("/api/favoriteAll");
+        const data = await res.json();
+        setFavorites(data); // expects full business objects
+      } catch (err) {
+        console.error("Failed to fetch favorites:", err);
+      }
+    };
+
+    fetchFavorites();
+  }, [session]);
+
   return (
     <div className="overflow-hidden">
       <Nav />
@@ -64,15 +63,31 @@ const Home: React.FC = () => {
 
       <section className="py-12 px-6">
         <h2 className="text-3xl font-bold text-center text-blue-950 mb-8">
-          Explore Businesses
+          <span className="text-cyan-500">Explore </span>Businesses
         </h2>
 
-        <div className="grid  grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12 place-items-center">
-          {businessData.map((business) => (
-            <Card key={business.id} business={business} />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12 place-items-center">
+          {businesses.map((business) => (
+            <Card key={business._id} business={business} />
           ))}
         </div>
       </section>
+
+      {/*Favorite Section for General Users */}
+      {session?.user?.userType === "General User" && favorites.length > 0 && (
+        <section className="py-12 px-6 bg-gray-50"> {/* Lighter background */}
+          <h2 className="text-3xl font-bold text-center text-blue-950 mb-8"> {/* Softer heading color */}
+            Your <span className="text-cyan-500">Favorite</span> Businesses
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12 place-items-center">
+            {favorites.map((business) => (
+              <Card key={business._id} business={business} />
+            ))}
+          </div>
+        </section>
+      )}
+
 
       <Footer />
     </div>

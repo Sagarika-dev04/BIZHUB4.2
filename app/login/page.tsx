@@ -1,14 +1,37 @@
 "use client";
+
 import React, { useState } from "react";
 import { FiMail, FiLock } from "react-icons/fi";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState<"success" | "error" | "">("");
+  const router = useRouter();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Login with:", { email, password });
+
+    const result = await signIn("credentials", {
+      redirect: false,
+      email,
+      password,
+    });
+
+    if (result?.error) {
+      setMessage("Login failed: " + result.error);
+      setMessageType("error");
+    } else {
+      setMessage("Login successful!");
+      setMessageType("success");
+
+      setTimeout(() => {
+        router.push("/");
+      }, 1500);
+    }
   };
 
   return (
@@ -19,7 +42,7 @@ const Login: React.FC = () => {
         <form onSubmit={handleLogin} className="space-y-5">
           {/* Email Field */}
           <div className="relative">
-            {FiMail ({className:"absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500"}) }
+            {FiMail({ className: "absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500" })}
             <input
               type="email"
               placeholder="Enter your email"
@@ -32,7 +55,7 @@ const Login: React.FC = () => {
 
           {/* Password Field */}
           <div className="relative">
-            {FiLock ({className:"absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500"}) }
+            {FiLock({ className: "absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500" })}
             <input
               type="password"
               placeholder="Enter your password"
@@ -43,8 +66,22 @@ const Login: React.FC = () => {
             />
           </div>
 
+          {/* Message (Success/Error) */}
+          {message && (
+            <p
+              className={`text-center text-sm font-medium mt-2 ${
+                messageType === "error" ? "text-red-600" : "text-green-600"
+              }`}
+            >
+              {message}
+            </p>
+          )}
+
           {/* Login Button */}
-          <button type="submit" className="w-full bg-blue-950 text-white py-3 rounded-lg font-semibold text-lg hover:shadow-lg transition-all">
+          <button
+            type="submit"
+            className="w-full bg-blue-950 text-white py-3 rounded-lg font-semibold text-lg hover:shadow-lg hover:cursor-pointer transition-all"
+          >
             Login
           </button>
         </form>

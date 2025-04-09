@@ -1,8 +1,10 @@
 "use client";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { FiUser, FiMail, FiLock, FiChevronDown } from "react-icons/fi";
 
 const Signup: React.FC = () => {
+  const router=useRouter();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -14,11 +16,39 @@ const Signup: React.FC = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  try {
+    const res = await fetch("/api/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
+
+    const isJSON = res.headers.get("content-type")?.includes("application/json");
+    const data = isJSON ? await res.json() : {};
+
+    if (res.ok) {
+      alert("Signup successful!");
+      
+      router.push("/login");
+    } else {
+      alert(data?.error || "Signup failed.");
+    }
+  } catch (err) {
+    console.error("Signup error:", err);
+    alert("Something went wrong.");
+  }
+};
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
       <div className="bg-white p-8 rounded-xl shadow-2xl w-full max-w-lg">
         <h2 className="text-3xl font-bold text-center text-cyan-500 mb-6">Sign Up</h2>
-        <form className="space-y-6">
+        <form className="space-y-6" onSubmit={handleSubmit}>
           
           {/* Full Name */}
           <div className="space-y-2">
@@ -75,18 +105,19 @@ const Signup: React.FC = () => {
               {FiChevronDown ({className:"absolute right-3 top-3.5 text-gray-500 text-lg"})}
               <select
                 name="userType"
+                value={formData.userType}
                 className="w-full h-12 pl-3 pr-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all appearance-none"
                 onChange={handleChange}
               >
-                <option>Business Owner</option>
-                <option>Admin</option>
-                <option>General User</option>
+                <option value="Business Owner">Business Owner</option>
+                {/*<option value="Admin">Admin</option>*/}
+                <option value="General User">General User</option>
               </select>
             </div>
           </div>
 
           {/* Sign Up Button */}
-          <button type="submit" className="w-full bg-cyan-500 text-white py-3 rounded-lg font-semibold text-lg hover:shadow-lg transition-all">
+          <button type="submit" className="w-full bg-cyan-500 text-white py-3 rounded-lg font-semibold text-lg hover:shadow-lg hover:cursor-pointer transition-all">
             Sign Up
           </button>
 
