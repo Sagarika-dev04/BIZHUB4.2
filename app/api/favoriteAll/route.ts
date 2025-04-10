@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import { User } from "@/models/User";
-import { BusinessCard } from "@/models/BusinessCard"; // needed for .populate to work
+//import { BusinessCard } from "@/models/BusinessCard"; // needed for .populate to work
 
 export async function GET() {
   try {
