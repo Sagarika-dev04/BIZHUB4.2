@@ -34,13 +34,16 @@ const AddBusinessCard = () => {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    const { name, value, files } = e.target as any;
-    if (name === "image" && files?.length > 0) {
+    const target = e.target as HTMLInputElement;
+    const { name, value, files } = target;
+    
+    if (name === "image" && files && files.length > 0) {
       setFormData({ ...formData, image: files[0] });
     } else {
       setFormData({ ...formData, [name]: value });
     }
   };
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,10 +59,8 @@ const AddBusinessCard = () => {
     });
 
     if (res.ok) {
-      const result = await res.json();
       router.push("/");
-    }
-     else {
+    } else {
       console.error("Failed to add business");
     }
   };
@@ -120,7 +121,36 @@ const AddBusinessCard = () => {
   );
 };
 
-const Input = ({ name, type = "text", placeholder, value, onChange, required = false, Icon }: any) => (
+// ---------- Types ----------
+
+interface InputProps {
+  name: string;
+  type?: string;
+  placeholder: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  required?: boolean;
+  Icon: React.ElementType;
+}
+
+interface FileInputProps {
+  name: string;
+  required?: boolean;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  Icon: React.ElementType;
+}
+
+// ---------- Components ----------
+
+const Input: React.FC<InputProps> = ({
+  name,
+  type = "text",
+  placeholder,
+  value,
+  onChange,
+  required = false,
+  Icon,
+}) => (
   <div>
     <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">
       {placeholder}
@@ -140,7 +170,7 @@ const Input = ({ name, type = "text", placeholder, value, onChange, required = f
   </div>
 );
 
-const FileInput = ({ name, required = false, onChange, Icon }: any) => (
+const FileInput: React.FC<FileInputProps> = ({ name, required = false, onChange, Icon }) => (
   <div>
     <label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1">
       Upload Image

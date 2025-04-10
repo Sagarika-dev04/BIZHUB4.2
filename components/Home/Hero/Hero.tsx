@@ -3,10 +3,11 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { FiSearch } from "react-icons/fi";
 import { useSession } from "next-auth/react";
+import Image from "next/image"; // ✅ Next.js optimized image
 
 const Hero = () => {
   const router = useRouter();
-  const { data: session } = useSession(); // Get session data
+  const { data: session } = useSession();
   const [searchQuery, setSearchQuery] = React.useState("");
 
   const images = [
@@ -23,7 +24,7 @@ const Hero = () => {
       setCurrent((prev) => (prev + 1) % images.length);
     }, 3000);
     return () => clearInterval(interval);
-  }, []);
+  }, [images.length]); // ✅ Added dependency
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,8 +49,7 @@ const Hero = () => {
           <li>✔ Easy-to-use interface for search and discovery</li>
         </ul>
 
-        {/*Stylish Centered Search Bar */}
-        {/* Stylish Centered Search Bar */}
+        {/* Search Bar */}
         <div className="flex justify-center md:justify-start mt-10">
           <form
             onSubmit={handleSearch}
@@ -71,8 +71,7 @@ const Hero = () => {
           </form>
         </div>
 
-
-        {/* CTA Button below Search - Only show if not logged in */}
+        {/* CTA Button - only if not logged in */}
         {!session && (
           <div>
             <button
@@ -88,10 +87,13 @@ const Hero = () => {
       {/* Right Side: Image Slider */}
       <div className="w-full md:w-1/2 flex justify-center mb-6 md:mb-0">
         <div className="relative w-full max-w-lg p-6 bg-blue-950 rounded-lg shadow-lg">
-          <img
+          <Image
             src={images[current]}
-            className="w-full h-72 object-contain rounded-lg transition duration-500 ease-in-out"
             alt="Business Slide"
+            width={500}
+            height={300}
+            className="w-full h-72 object-contain rounded-lg transition duration-500 ease-in-out"
+            priority
           />
         </div>
       </div>

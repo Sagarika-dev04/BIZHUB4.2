@@ -8,6 +8,6 @@ export async function GET() {
     const businesses = await BusinessCard.find({});
     return NextResponse.json(businesses, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ error: "Failed to fetch businesses" }, { status: 500 });
+    return NextResponse.json({ message: "Failed to fetch businesses",detauils: error }, { status: 500 });
   }
 }

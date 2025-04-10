@@ -12,15 +12,19 @@ const Nav = () => {
   const { data: session } = useSession();
   const user = session?.user;
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const userMenuRef = useRef(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
-  // Click outside to close
+  // Close user menu on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (userMenuRef.current && !(userMenuRef.current as any).contains(event.target)) {
+      if (
+        userMenuRef.current &&
+        !userMenuRef.current.contains(event.target as Node)
+      ) {
         setShowUserMenu(false);
       }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
@@ -28,7 +32,7 @@ const Nav = () => {
   return (
     <div className="bg-blue-950 shadow-md transition-all duration-200 h-[11vh] z-[1000] fixed w-full">
       <div className="flex items-center h-full justify-between w-[90%] xl:w-[80%] mx-auto">
-        {/* LOGO */}
+        {/* Logo */}
         <div className="flex items-center space-x-2">
           <div className="w-10 h-10 rounded-full bg-cyan-500 flex items-center justify-center">
             {HiBuildingLibrary({ className: "w-7 h-7 text-white" })}
@@ -36,7 +40,7 @@ const Nav = () => {
           <h1 className="text-xl md:text-2xl text-white uppercase font-semibold">BizHub</h1>
         </div>
 
-        {/* BUTTONS */}
+        {/* Buttons */}
         <div className="flex items-center space-x-2 sm:space-x-4 relative">
           {!session && (
             <>
@@ -70,7 +74,7 @@ const Nav = () => {
             </button>
           )}
 
-          {/* USER ICON + DROPDOWN */}
+          {/* User Dropdown */}
           {session && (
             <div className="relative" ref={userMenuRef}>
               <button
@@ -83,7 +87,9 @@ const Nav = () => {
               {/* Dropdown */}
               <div
                 className={`absolute right-0 mt-3 w-64 bg-white rounded-xl shadow-lg z-50 px-4 py-3 transition-all duration-300 ease-in-out ${
-                  showUserMenu ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
+                  showUserMenu
+                    ? "opacity-100 scale-100"
+                    : "opacity-0 scale-95 pointer-events-none"
                 }`}
               >
                 <div className="text-gray-800 font-semibold text-base truncate">{user?.name}</div>

@@ -1,14 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, ChangeEvent, FormEvent } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+
+interface BusinessFormData {
+  name: string;
+  category: string;
+  description: string;
+  address: string;
+  email: string;
+  phone: string;
+  website: string;
+  openingHours: string;
+  image: string;
+}
 
 const EditBusiness = () => {
   const { id } = useParams();
   const router = useRouter();
-  const { data: session } = useSession();
-  const [formData, setFormData] = useState({
+
+  const [formData, setFormData] = useState<BusinessFormData>({
     name: "",
     category: "",
     description: "",
@@ -23,17 +34,17 @@ const EditBusiness = () => {
   useEffect(() => {
     const fetchBusiness = async () => {
       const res = await fetch(`/api/businessGET/${id}`);
-      const data = await res.json();
+      const data: BusinessFormData = await res.json();
       setFormData(data);
     };
     fetchBusiness();
   }, [id]);
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     try {
@@ -59,9 +70,11 @@ const EditBusiness = () => {
     <div className="max-w-2xl mx-auto mt-24 p-6 bg-slate-100 rounded-xl shadow-md">
       <h2 className="text-2xl font-bold mb-6">Edit Business</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
-        {["name", "category", "description", "address", "email", "phone", "website", "openingHours", "image"].map((field) => (
+        {Object.keys(formData).map((field) => (
           <div key={field}>
-            <label className="block text-sm font-medium text-gray-700 capitalize">{field}</label>
+            <label className="block text-sm font-medium text-gray-700 capitalize">
+              {field}
+            </label>
             <input
               type="text"
               name={field}

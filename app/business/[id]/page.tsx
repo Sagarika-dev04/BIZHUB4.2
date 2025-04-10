@@ -15,7 +15,7 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { Business } from "@/types/index";
-import { notFound, redirect } from "next/navigation";
+import { notFound} from "next/navigation";
 
 interface Props {
   params: { id: string };

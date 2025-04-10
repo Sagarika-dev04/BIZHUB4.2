@@ -1,23 +1,13 @@
-
 import type { Metadata } from "next";
-import {Poppins } from "next/font/google";
+import { Poppins } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers"; 
 
-
-const font=Poppins({
-  weight:['100','200','300','400','500','600','700','800','900']
-})
-
-// const geistSans = Geist({
-//   variable: "--font-geist-sans",
-//   subsets: ["latin"],
-// });
-
-// const geistMono = Geist_Mono({
-//   variable: "--font-geist-mono",
-//   subsets: ["latin"],
-// });
+const font = Poppins({
+  weight: ['100', '200', '300', '400', '500', '600', '700', '800', '900'],
+  subsets: ['latin'], // ✅ Added to fix preload subset error
+  preload: true
+});
 
 export const metadata: Metadata = {
   title: "Mini Business Directory | Find & List Local Businesses Online",
@@ -31,11 +21,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${font.className} antialiased`}
-      >
-       <Providers>{children}</Providers> 
-       
+      <body className={`${font.className} antialiased`}>
+        <Providers>{children}</Providers> 
       </body>
     </html>
   );

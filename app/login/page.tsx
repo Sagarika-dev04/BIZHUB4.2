@@ -69,9 +69,8 @@ const Login: React.FC = () => {
           {/* Message (Success/Error) */}
           {message && (
             <p
-              className={`text-center text-sm font-medium mt-2 ${
-                messageType === "error" ? "text-red-600" : "text-green-600"
-              }`}
+              className={`text-center text-sm font-medium mt-2 ${messageType === "error" ? "text-red-600" : "text-green-600"
+                }`}
             >
               {message}
             </p>
@@ -88,7 +87,8 @@ const Login: React.FC = () => {
 
         {/* Sign Up Redirect */}
         <p className="text-center mt-4 text-gray-600">
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
+
           <a href="/signup" className="text-blue-700 font-medium hover:underline">
             Sign up
           </a>
