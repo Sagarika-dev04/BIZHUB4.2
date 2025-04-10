@@ -49,14 +49,15 @@ const Hero = () => {
         </ul>
 
         {/*Stylish Centered Search Bar */}
-        <div className="flex justify-center md:justify-start mt-8">
+        {/* Stylish Centered Search Bar */}
+        <div className="flex justify-center md:justify-start mt-10">
           <form
             onSubmit={handleSearch}
-            className="flex items-center w-full max-w-lg bg-cyan-100 rounded-full px-6 py-3 shadow-md"
+            className="flex items-center w-full max-w-lg bg-white border-2 border-cyan-400 rounded-full px-6 py-3 shadow-md focus-within:shadow-cyan-400/60 transition-shadow duration-300"
           >
             <button
               type="submit"
-              className="text-cyan-600 hover:text-cyan-700 cursor-pointer"
+              className="text-cyan-600 hover:text-cyan-700 cursor-pointer transition-colors duration-200"
             >
               {FiSearch({ className: "w-5 h-5" })}
             </button>
@@ -65,10 +66,11 @@ const Hero = () => {
               placeholder="Search businesses by category..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 ml-3 bg-transparent outline-none text-gray-700 placeholder-gray-500"
+              className="flex-1 ml-3 bg-transparent text-gray-800 placeholder-gray-400 outline-none text-base"
             />
           </form>
         </div>
+
 
         {/* CTA Button below Search - Only show if not logged in */}
         {!session && (

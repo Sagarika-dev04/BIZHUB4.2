@@ -1,6 +1,4 @@
-"use client";
-
-import React, { useEffect, useState } from "react";
+// app/business/[id]/page.tsx
 import {
   FiMapPin,
   FiMail,
@@ -14,112 +12,51 @@ import {
 import Nav from "@/components/Home/Navbar/Nav";
 import Footer from "@/components/Home/Footer/Footer";
 import Link from "next/link";
-import { useParams } from "next/navigation";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { Business } from "@/types/index";
+import { notFound, redirect } from "next/navigation";
 
-interface Business {
-  _id: string;
-  name: string;
-  category: string;
-  description: string;
-  address: string;
-  image?: string;
-  email?: string;
-  website?: string;
-  phone?: string;
-  openingHours?: string;
-  createdBy?: string | { _id: string };
+interface Props {
+  params: { id: string };
 }
 
-const BusinessDetailsPage = () => {
-  const { data: session } = useSession(); //session from NextAuth 
-  const { id } = useParams();
-  const router = useRouter();
-  const [business, setBusiness] = useState<Business | null>(null);
-  const [loading, setLoading] = useState(true);
+async function getBusiness(id: string): Promise<Business | null> {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/businessGET/${id}`, {
+    cache: "no-store",
+  });
+  if (!res.ok) return null;
+  return res.json();
+}
 
-  useEffect(() => {
-    const fetchBusiness = async () => {
-      if (!id) return;
-  
-      try {
-        const res = await fetch(`/api/businessGET/${id}`);
-        const data = await res.json();
-        setBusiness(data);
-  
-        if (session?.user?.id) {
-          const favRes = await fetch(`/api/favoriteCheck/${id}`);
-          const favData = await favRes.json();
-          setIsFavorite(favData?.isFavorite || false);
-        }
-      } catch (err) {
-        console.error("Failed to fetch business or favorite:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-  
-    fetchBusiness();
-  }, [id, session]);
-  
+async function checkFavorite(id: string): Promise<boolean> {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/favoriteCheck/${id}`, {
+    cache: "no-store",
+  });
+  if (!res.ok) return false;
+  const data = await res.json();
+  return data?.isFavorite || false;
+}
 
+export default async function BusinessDetailsPage({ params }: Props) {
+  const id = params.id;
 
-  //Handler function to handle the deletion of a Business card
-  const handleDelete = async () => {
-    if (!id) return;
+  if (!id) return notFound(); 
 
-    const confirmDelete = confirm("Are you sure you want to delete this business?");
-    if (!confirmDelete) return;
+  const session = await getServerSession(authOptions);
+  const business = await getBusiness(id);
 
-    try {
-      const res = await fetch(`/api/cardEditDel/${id}`, {
-        method: "DELETE",
-      });
+  if (!business) return notFound();
 
-      const result = await res.json();
-      if (res.ok) {
-        alert("Business deleted successfully!");
-        window.location.href = "/";
-      } else {
-        alert(result.error || "Delete failed.");
-      }
-    } catch (err) {
-      console.error("Delete Error:", err);
-      alert("Something went wrong during delete.");
-    }
-  };
-
-
-  //handler to handle favorite
-  const [isFavorite, setIsFavorite] = useState(false);
-
-  const handleAddToFavorites = async () => {
-    if (!id) return;
-
-    try {
-      const res = await fetch(`/api/favorite/${id}`, {
-        method: "POST",
-      });
-
-      const result = await res.json();
-      if (res.ok) {
-        setIsFavorite(true);
-      } else {
-        alert(result.error || "Failed to add to favorites.");
-      }
-    } catch (err) {
-      console.error("Favorite Error:", err);
-      alert("Something went wrong while adding to favorites.");
-    }
-  };
-
-
-
-  if (loading) return <div className="text-center py-20">Loading...</div>;
-  if (!business) return <div className="text-center text-red-500 py-20">Business Not Found</div>;
-
+  const isFavorite = session?.user?.id ? await checkFavorite(id) : false;
   const userRole = session?.user?.userType;
+
+  const isOwner =
+    userRole === "Business Owner" &&
+    ((typeof business.createdBy === "string"
+      ? business.createdBy === session?.user?.id
+      : business.createdBy?._id === session?.user?.id));
+
 
   return (
     <div className="overflow-hidden">
@@ -179,43 +116,42 @@ const BusinessDetailsPage = () => {
               )}
             </div>
 
-            {/* Conditional Buttons */}
             <div className="flex flex-wrap gap-4 mt-8">
-              {userRole === "Business Owner" &&
-                ((typeof business.createdBy === "string"
-                  ? business.createdBy === session?.user?.id
-                  : business.createdBy?._id === session?.user?.id)) && (
-                  <button
-                    onClick={() => router.push(`/businessEdit/${business._id}`)}
-                    className="flex items-center gap-2 px-5 py-2 text-sm font-medium bg-cyan-500 text-white hover:cursor-pointer hover:bg-cyan-600 transition rounded-md shadow-sm"
-                  >
-                    {FiEdit({ className: "w-4 h-4" })} Edit
-                  </button>
-                )}
+              {isOwner && (
+                <Link
+                  href={`/businessEdit/${business._id}`}
+                  className="flex items-center gap-2 px-5 py-2 text-sm font-medium bg-cyan-500 text-white hover:bg-cyan-600 transition rounded-md shadow-sm"
+                >
+                  {FiEdit({ className: "w-4 h-4" })} Edit
+                </Link>
+              )}
 
               {userRole === "Admin" && (
-                <button
-                  onClick={handleDelete}
-                  className="flex items-center gap-2 px-5 py-2 text-sm font-medium bg-red-600 text-white hover:cursor-pointer hover:bg-red-700 transition rounded-md shadow-sm"
-                >
-                  {FiTrash2({ className: "w-4 h-4" })} Delete
-                </button>
+                <form action={`/api/cardEditDel/${business._id}`} method="POST">
+                  <button
+                    type="submit"
+                    className="flex items-center gap-2 px-5 py-2 text-sm font-medium bg-red-600 text-white hover:bg-red-700 transition rounded-md shadow-sm"
+                  >
+                    {FiTrash2({ className: "w-4 h-4" })} Delete
+                  </button>
+                </form>
               )}
 
               {userRole === "General User" && (
-                <button
-                  onClick={handleAddToFavorites}
-                  className="p-2 rounded-full hover:cursor-pointer bg-gray-100 hover:bg-gray-100 transition"
-                  title="Add to favorites"
-                >
-                  {isFavorite ? (
-                    <FiHeart className="w-5 h-5 text-red-500 fill-red-500" />
-                  ) : (
-                    <FiHeart className="w-5 h-5 text-gray-500" />
-                  )}
-                </button>
+                <form action={`/api/favorite/${business._id}`} method="POST">
+                  <button
+                    type="submit"
+                    className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition"
+                    title="Add to favorites"
+                  >
+                    {isFavorite ? (
+                      <FiHeart className="w-5 h-5 text-red-500 fill-red-500" />
+                    ) : (
+                      <FiHeart className="w-5 h-5 text-gray-500" />
+                    )}
+                  </button>
+                </form>
               )}
-
             </div>
           </div>
         </div>
@@ -230,6 +166,4 @@ const BusinessDetailsPage = () => {
       <Footer />
     </div>
   );
-};
-
-export default BusinessDetailsPage;
+}
