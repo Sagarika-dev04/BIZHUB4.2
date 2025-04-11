@@ -11,8 +11,8 @@ const Hero = ({ session }: { session: any }) => {
 
   const images = [
     "/images/Logo.webp",
-    "/images/business1.jfif",
-    "/images/business2.jfif",
+    "/images/business1.png",
+    "/images/business2.png",
     "/images/business3.png",
   ];
 
