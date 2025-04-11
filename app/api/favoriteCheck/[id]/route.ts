@@ -1,5 +1,3 @@
-// /api/favoriteCheck/[id]/route.ts
-
 import { connectToDB } from "@/lib/db";
 import { User } from "@/models/User";
 import { getServerSession } from "next-auth";

@@ -1,13 +1,12 @@
 "use client";
+
 import React from "react";
 import { useRouter } from "next/navigation";
 import { FiSearch } from "react-icons/fi";
-import { useSession } from "next-auth/react";
-import Image from "next/image"; // ✅ Next.js optimized image
+import Image from "next/image";
 
-const Hero = () => {
+const Hero = ({ session }: { session: any }) => {
   const router = useRouter();
-  const { data: session } = useSession();
   const [searchQuery, setSearchQuery] = React.useState("");
 
   const images = [
@@ -24,26 +23,22 @@ const Hero = () => {
       setCurrent((prev) => (prev + 1) % images.length);
     }, 3000);
     return () => clearInterval(interval);
-  }, [images.length]); // ✅ Added dependency
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Search for:", searchQuery);
     router.push(`/search?query=${encodeURIComponent(searchQuery)}`);
   };
 
   return (
     <div className="relative w-full h-auto min-h-screen bg-gray-50 flex flex-col-reverse md:flex-row items-center px-4 sm:px-6 md:px-12 py-8 sm:py-10 md:py-0 pt-24">
-      {/* Left Side: Text + Search */}
       <div className="text-blue-950 w-full md:w-1/2 text-center md:text-left space-y-6">
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold">
           Discover & Connect with Businesses
         </h1>
-
         <p className="text-lg sm:text-xl text-gray-700">
           Explore verified businesses, connect with service providers, and grow your network — all in one place.
         </p>
-
         <ul className="text-gray-600 text-base space-y-2">
           <li>✔ Verified business listings across multiple industries</li>
           <li>✔ Easy-to-use interface for search and discovery</li>
@@ -71,6 +66,7 @@ const Hero = () => {
           </form>
         </div>
 
+
         {/* CTA Button - only if not logged in */}
         {!session && (
           <div>
@@ -97,6 +93,8 @@ const Hero = () => {
           />
         </div>
       </div>
+
+
     </div>
   );
 };

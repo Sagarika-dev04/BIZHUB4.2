@@ -1,4 +1,4 @@
-// app/business/[id]/page.tsx
+export const dynamic = "force-dynamic";
 import {
   FiMapPin,
   FiMail,
@@ -7,7 +7,6 @@ import {
   FiGlobe,
   FiEdit,
   FiTrash2,
-  FiHeart,
 } from "react-icons/fi";
 import Nav from "@/components/Home/Navbar/Nav";
 import Footer from "@/components/Home/Footer/Footer";
@@ -15,7 +14,9 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { Business } from "@/types/index";
-import { notFound} from "next/navigation";
+import { notFound } from "next/navigation";
+import Favorite from "@/components/Home/Favorite/Favorite";
+import { cookies } from "next/headers";
 
 interface Props {
   params: { id: string };
@@ -30,9 +31,16 @@ async function getBusiness(id: string): Promise<Business | null> {
 }
 
 async function checkFavorite(id: string): Promise<boolean> {
+  const cookieStore = await cookies();
+  const cookieHeader = cookieStore.getAll().map(c => `${c.name}=${c.value}`).join("; ");
+
   const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/favoriteCheck/${id}`, {
     cache: "no-store",
+    headers: {
+      Cookie: cookieHeader,
+    },
   });
+
   if (!res.ok) return false;
   const data = await res.json();
   return data?.isFavorite || false;
@@ -41,7 +49,7 @@ async function checkFavorite(id: string): Promise<boolean> {
 export default async function BusinessDetailsPage({ params }: Props) {
   const id = params.id;
 
-  if (!id) return notFound(); 
+  if (!id) return notFound();
 
   const session = await getServerSession(authOptions);
   const business = await getBusiness(id);
@@ -60,7 +68,7 @@ export default async function BusinessDetailsPage({ params }: Props) {
 
   return (
     <div className="overflow-hidden">
-      <Nav />
+      <Nav session={session} />
 
       <div className="max-w-6xl mx-auto p-6 mt-24 bg-white rounded-3xl shadow-xl border border-gray-100">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
@@ -130,7 +138,7 @@ export default async function BusinessDetailsPage({ params }: Props) {
                 <form action={`/api/cardEditDel/${business._id}`} method="POST">
                   <button
                     type="submit"
-                    className="flex items-center gap-2 px-5 py-2 text-sm font-medium bg-red-600 text-white hover:bg-red-700 transition rounded-md shadow-sm"
+                    className="flex items-center gap-2 px-5 py-2 text-sm font-medium bg-red-600 text-white hover:cursor-pointer hover:bg-red-700 transition rounded-md shadow-sm"
                   >
                     {FiTrash2({ className: "w-4 h-4" })} Delete
                   </button>
@@ -138,20 +146,9 @@ export default async function BusinessDetailsPage({ params }: Props) {
               )}
 
               {userRole === "General User" && (
-                <form action={`/api/favorite/${business._id}`} method="POST">
-                  <button
-                    type="submit"
-                    className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition"
-                    title="Add to favorites"
-                  >
-                    {isFavorite ? (
-                      <FiHeart className="w-5 h-5 text-red-500 fill-red-500" />
-                    ) : (
-                      <FiHeart className="w-5 h-5 text-gray-500" />
-                    )}
-                  </button>
-                </form>
+                <Favorite businessId={business._id} isFavorite={isFavorite} />
               )}
+
             </div>
           </div>
         </div>

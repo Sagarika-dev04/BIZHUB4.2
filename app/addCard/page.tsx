@@ -67,7 +67,8 @@ const AddBusinessCard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Nav />
+      
+      {/*<Nav session={session} />*/}
       <main className="max-w-4xl mx-auto px-6 pt-32 pb-20">
         <div className="bg-white border shadow-lg rounded-3xl p-8 md:p-12">
           <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">

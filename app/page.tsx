@@ -1,4 +1,3 @@
-// app/page.tsx
 import Nav from "@/components/Home/Navbar/Nav";
 import Hero from "@/components/Home/Hero/Hero";
 import Card from "@/components/Home/Card/Card";
@@ -6,20 +5,33 @@ import Footer from "@/components/Home/Footer/Footer";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { Business } from "@/types/index";
+import { cookies } from "next/headers";
 
 async function getBusinesses() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/businessAll`, { cache: "no-store" });
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/businessAll`, {
+    cache: "no-store",
+    method: 'GET',
+    credentials: 'include',
+  });
   return res.json();
 }
 
 async function getFavorites() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/favoriteAll`, { cache: "no-store" });
+  const cookieStore = await cookies();
+  const cookieHeader = cookieStore.getAll().map(c => `${c.name}=${c.value}`).join("; ");
+
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/favoriteAll`, {
+    cache: "no-store",
+    headers: {
+      Cookie: cookieHeader,
+    },
+  });
   return res.json();
 }
 
 export default async function HomePage() {
-  const businesses: Business[] = await getBusinesses();
   const session = await getServerSession(authOptions);
+  const businesses: Business[] = await getBusinesses();
 
   let favorites: Business[] = [];
   if (session?.user?.userType === "General User") {
@@ -28,8 +40,8 @@ export default async function HomePage() {
 
   return (
     <div className="overflow-hidden">
-      <Nav />
-      <Hero />
+      <Nav session={session} />
+      <Hero session={session} />
 
       <section className="py-12 px-6">
         <h2 className="text-3xl font-bold text-center text-blue-950 mb-8">
