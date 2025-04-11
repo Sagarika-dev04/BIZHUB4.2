@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Nav from "@/components/Home/Navbar/Nav";
+//import Nav from "@/components/Home/Navbar/Nav";
 import Footer from "@/components/Home/Footer/Footer";
 import {
   Building2,
