@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { FiHeart } from "react-icons/fi";
+import { AiFillHeart } from "react-icons/ai"; // filled heart
 
 type Props = {
   businessId: string;
@@ -28,14 +29,14 @@ export default function FavoriteButton({ businessId, isFavorite }: Props) {
     <button
       onClick={toggleFavorite}
       disabled={isPending}
-      className="p-2 rounded-full bg-gray-50 hover:cursor-pointer hover:bg-gray-100 transition" // dark background for white heart to show
-      title="Add to favorites"
+      className="p-2 rounded-full bg-gray-50 hover:bg-gray-100 transition"
+      title={liked ? "Remove from favorites" : "Add to favorites"}
     >
-      <FiHeart
-        className={`w-6 h-6 transition ${
-          liked ? "text-red-500 fill-red-500" : "text-white"
-        }`}
-      />
+      {liked ? (
+        <AiFillHeart className="w-6 h-6 text-red-500" />
+      ) : (
+        <FiHeart className="w-6 h-6 text-gray-600" />
+      )}
     </button>
   );
 }

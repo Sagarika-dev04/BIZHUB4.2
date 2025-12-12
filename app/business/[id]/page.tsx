@@ -47,7 +47,7 @@ async function checkFavorite(id: string): Promise<boolean> {
 }
 
 export default async function BusinessDetailsPage({ params }: Props) {
-  const id = params.id;
+  const {id} = await params;
 
   if (!id) return notFound();
 

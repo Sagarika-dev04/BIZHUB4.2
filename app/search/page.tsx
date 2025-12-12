@@ -6,7 +6,7 @@ import Card from "@/components/Home/Card/Card";
 import Nav from "@/components/Home/Navbar/Nav";
 import Footer from "@/components/Home/Footer/Footer";
 import Link from "next/link";
-
+import { getServerSession } from "next-auth";
 interface Props {
     searchParams: { query: string };
 }
@@ -21,8 +21,9 @@ interface BusinessDocument {
 }
 
 export default async function SearchPage({ searchParams }: Props) {
-    const q = searchParams.query || "";
-
+    const {query=""}=await searchParams; 
+    const q = query ;
+    const session = await getServerSession();
     await connectToDB();
 
     const results = await BusinessCard.find({
@@ -43,7 +44,7 @@ export default async function SearchPage({ searchParams }: Props) {
 
     return (
         <div className="overflow-hidden bg-blue-50">
-            <Nav />
+            <Nav session={session}/>
 
             <section className="pt-32 px-6 pb-12 min-h-screen">
 
